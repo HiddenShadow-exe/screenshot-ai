@@ -1,4 +1,3 @@
-# Screenshot AI
 Screenshot AI takes a screenshot of your screen when a keybind is pressed, prompts an LLM to answer the question visible in the screenshot, then shows the answer in a tray icon. All this without anyone realizing you are using AI to answer the quesion.
 
 # Screenshot AI v1
@@ -33,8 +32,8 @@ After taking a screenshot, the program switches to the Gemini window, where it c
 
 ### The window references not being correct
 The program stored the title of the webpage where the questions are going to be from. If at any point the page title changed, and became different than was has been stored during setup, after retrieving the answer from Gemini, it would'n know where to switch back to, so it simply closed the "camouflage window", making Gemini fully visible, thus running the risk of getting caught cheating. Here is an example to better understand:
-During setup, the HTML page's title was the following: **"Moodle | Start Quiz"**
-It was stored when starting the program. After starting the quiz, the page title changed to **"Moodle | Quiz - Question 1"**
+During setup, the HTML page's title was the following: `"Moodle | Start Quiz"`
+It was stored when starting the program. After starting the quiz, the page title changed to `"Moodle | Quiz - Question 1"`
 
 ## Motivation for v2
 Note that such an unexpected event (which was highly probable to occur) was nearly impossible to restore during live usage. In an exam environment, there was no way that the program could be restarted or reaparations could be made without raising suspicion of doing something else.
