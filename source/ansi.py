@@ -8,3 +8,8 @@ class ansi:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+    ERROR_MSG = FAIL + "ERROR: " + ENDC
+    WARNING_MSG = WARNING + "WARNING: " + ENDC
+    SUCCESS_MSG = OKGREEN + "SUCCESS: " + ENDC
+    INFO_MSG = OKBLUE + "INFO: " + ENDC

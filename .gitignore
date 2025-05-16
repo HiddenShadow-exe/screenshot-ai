@@ -1,3 +1,5 @@
 __pycache__/*
+source/__pycache__/*
 *.zip
 mouse_positions.txt
+apikey.txt
