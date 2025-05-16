@@ -1,0 +1,2 @@
+INSERT YOUR APIKEY HERE
+(Get key from: aistudio.google.com)
