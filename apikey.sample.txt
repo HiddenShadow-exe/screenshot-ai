@@ -1,0 +1,2 @@
+**PASTE YOUR API KEY HERE** then rename to apikey.txt
+(get it from aistudio.google.com)
