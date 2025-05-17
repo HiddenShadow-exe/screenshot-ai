@@ -224,7 +224,7 @@ modelSelect.addEventListener('change', function() {
 function browsePdfFile() {
     // pywebview provides access to file paths via API
     if (window.pywebview) {
-        window.pywebview.api.get_file_path().then(function (filePath) {
+        window.pywebview.api.browse_pdf().then(function (filePath) {
             if (filePath) {
                 pdfInput.value = filePath;
                 addPdfSource();

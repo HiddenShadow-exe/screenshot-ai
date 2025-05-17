@@ -87,9 +87,28 @@ class UI:
             hidden=False,
         )
 
-
+        self.window.expose(self.browse_pdf)
         for callback in self.main_app_callbacks:
             self.window.expose(self.main_app_callbacks[callback]) # Expose each callback to the JS context
+
+    def browse_pdf(self):
+        """Opens a file dialog to select a PDF file."""
+        # This method is called from the JS side
+        # Use the webview API to open a file dialog and return the selected file path
+        try:
+            pdf_path = self.window.create_file_dialog(
+                webview.OPEN_DIALOG,
+                file_types=('PDF Files (*.pdf)',),
+                allow_multiple=False)
+            if pdf_path:
+                pdf_path = pdf_path[0]
+                return pdf_path
+            else:
+                print(UI_MSG + "No PDF file selected.")
+                return None
+        except Exception as e:
+            print(ansi.ERROR_MSG + f"Error opening file dialog: {e}")
+            return None
 
     def start_ui(self):
         """Starts the pywebview GUI and the log monitoring thread."""
@@ -257,6 +276,7 @@ class UI:
             except Exception as e:
                 print(ansi.ERROR_MSG + f"Error destroying window: {e}")
             self.window = None # Clear reference
+
 
 # Need Flask setup here because it's used by UI class
 from flask import Flask, render_template

@@ -1,9 +1,10 @@
+import ctypes
 from datetime import date
 import sys
 import time
-from tkinter import filedialog
-import tkinter as tk
 import keyboard
+import win32con
+import win32gui
 
 from trayicon import TrayIcon
 from ansi import ansi
@@ -18,6 +19,7 @@ is_hidden = False # Track if UI is hidden
 pdf_sources_list = [] # List of PDF paths/URLs
 selected_model = "models/gemini-2.5-flash-preview-04-17-thinking" # Default model
 token_data = {} # Dictionary to store token usage loaded from token_db
+hwnd = None # Handle for the console window
 
 # --- Objects ---
 trayicon = None
@@ -59,7 +61,7 @@ def toggle_ui_visibility():
             if is_hidden:
                 ui_app.show()
             else:
-                ui_app.hide()
+                ui_app.hide()         
             is_hidden = not is_hidden
         else:
             print(ansi.WARNING_MSG + "UI window not yet loaded.")
@@ -248,12 +250,6 @@ def get_token_usage():
         token_data = token_db.load_token_data()
     return token_data
 
-def get_file_path():
-    root = tk.Tk()
-    root.withdraw()  # Hide the root window
-    file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
-    return file_path
-
 
 if __name__ == "__main__":
     # Ensure Gemini client is initialized by importing gemini module
@@ -284,7 +280,6 @@ if __name__ == "__main__":
         'get_token_usage': get_token_usage, # UI -> Main (gets token data)
         'quit_app': set_quitting_flag,       # UI -> Main (signals quit)
         'toggle_ui_visibility': toggle_ui_visibility, # UI -> Main (toggles visibility)
-        'get_file_path': get_file_path,      # UI -> Main (opens file dialog)
         # UI can also call update methods on ui_app directly from main.py
     }
 
@@ -302,6 +297,14 @@ if __name__ == "__main__":
 
     print("-" * 50)
     print(ansi.INFO_MSG + "Setup complete.")
+
+    # Hide the console window after a small delay
+    print(ansi.INFO_MSG + "Hiding console window...")
+    hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+    win32gui.SetForegroundWindow(hwnd)
+    hwnd = win32gui.GetForegroundWindow() 
+    if hwnd:
+        win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
 
     if ui_app:
         # Start the UI - this call blocks the main thread until the window is closed
