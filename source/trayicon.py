@@ -8,9 +8,10 @@ from ansi import ansi
 TRAYICON_MSG = ansi.OKCYAN + "TRAYICON: " + ansi.ENDC
 
 class TrayIcon:
-    def __init__(self, quit_callback):
+    def __init__(self, quit_callback, show_gui_callback):
         self.icon = None
         self.quit_callback = quit_callback
+        self.show_gui_callback = show_gui_callback
         print(TRAYICON_MSG + "Initialized.")
 
     def create_image(self, answer="", color="black"):
@@ -62,8 +63,9 @@ class TrayIcon:
         self.icon.icon = self.create_image(answer, color=color)
         self.icon.title = answer
 
-        # Create a right-click menu with "Quit" option
+        # Create a right-click menu
         self.icon.menu = pystray.Menu(
+            item('Show GUI', lambda icon, item: self.show_gui_callback()),
             item('Quit', lambda icon, item: self.quit_callback()),
         )
 
@@ -83,8 +85,9 @@ class TrayIcon:
         self.icon.icon = self.create_image("...", color="orange")
         self.icon.title = "Loading..."
 
-        # Create a right-click menu with "Quit" option
+        # Create a right-click menu
         self.icon.menu = pystray.Menu(
+            item('Show GUI', lambda icon, item: self.show_gui_callback()),
             item('Quit', lambda icon, item: self.quit_callback()),
         )
 

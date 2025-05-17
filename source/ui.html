@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <title>Gemini QA Config</title>
+    <link rel="stylesheet" href="ui.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gemini QA Configuration</h1>
+
+        <div id="state-status" class="status configuring">Configuring</div>
+
+        <div class="section" id="pdf-section">
+            <h2>PDF Context Files</h2>
+            <ul id="pdf-list">
+                <!-- PDF items will be added here by JS -->
+            </ul>
+            <div class="input-group">
+                <input type="text" id="pdf-input" placeholder="Add local path or URL...">
+                <button onclick="addPdfSource()">Add PDF</button>
+            </div>
+        </div>
+
+        <div class="section" id="model-section">
+            <h2>AI Model</h2>
+            <select id="model-select">
+                <!-- Model options will be populated by JS -->
+            </select>
+        </div>
+
+        <div class="section" id="tokens-section">
+            <h2>Token Usage</h2>
+            <p>Total: <span id="total-tokens">0</span></p>
+            <p>Today: <span id="today-tokens">0</span></p>
+        </div>
+
+        <div class="section" id="logs-section">
+            <h2>Logs</h2>
+            <textarea id="log-output" rows="10" readonly></textarea>
+        </div>
+
+        <div class="controls">
+            <button id="start-stop-button" onclick="toggleListening()">Start Listening</button>
+        </div>
+    </div>
+
+    <script src="ui.js"></script> <!-- Link to JS file -->
+</body>
+</html>

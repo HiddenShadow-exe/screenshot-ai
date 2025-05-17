@@ -158,16 +158,21 @@ def create_gemini_contents(image_path, pdf_sources):
     return contents
 
 
-def call_gemini_multimodal(contents):
+def call_gemini_multimodal(contents, selected_model):
     """Calls the Gemini API with the list of multimodal content parts."""
 
     try:
         print(ansi.INFO_MSG + "Calling Gemini API...")
         # Use the model specified by the user
         response = client.models.generate_content(
-            model="gemini-2.5-flash-preview-04-17",
+            model=selected_model,
             contents=contents,
         )
+        
+        # Extract token usage
+        tokens_used = 0
+        if hasattr(response, 'usage_metadata') and hasattr(response.usage_metadata, 'total_token_count'):
+            tokens_used = response.usage_metadata.total_token_count
 
         # Access the text response
         if not hasattr(response, 'text') or not response.text:
@@ -181,17 +186,15 @@ def call_gemini_multimodal(contents):
                 else:
                     print("API returned no text, but no specific block reason provided in feedback.")
 
-            return None
+            return None, tokens_used
 
         answer = response.text.strip()
-
-        print(response.usage_metadata.total_token_count, "tokens used.")
 
         # Although the prompt asks the model to keep it under 128, we add this check as a safeguard and warning.
         if len(answer) > 128:
             print(ansi.WARNING_MSG + f"API response length ({len(answer)}) exceeded the requested 128 characters.")
 
-        return answer
+        return answer, tokens_used
 
     except Exception as e:
         if (e.__class__.__name__ == "LocalProtocolError"):
@@ -202,21 +205,22 @@ def call_gemini_multimodal(contents):
 
         return None
     
-def process_question(trayicon: TrayIcon, pdf_sources_list):
+def process_question(trayicon: TrayIcon, pdf_sources_list, selected_model):
     # Take a screenshot of the current screen
     image_path = take_screenshot()
     if not os.path.exists(image_path):
         print(ansi.ERROR_MSG + f"Image file not found at '{image_path}'.")
-        return
+        return None
     
     # Prepare content and call API
     print(ansi.INFO_MSG + "Preparing content for Gemini...")
 
     contents = create_gemini_contents(image_path, pdf_sources_list)
 
+    tokens_used = 0
     if contents:
         trayicon.set_loading()
-        response_text = call_gemini_multimodal(contents)
+        response_text, tokens_used = call_gemini_multimodal(contents, selected_model)
 
         print(ansi.INFO_MSG + ansi.BOLD + ansi.UNDERLINE + "Response from Gemini:" + ansi.ENDC, end=" ")
         if response_text is not None:
@@ -235,4 +239,6 @@ def process_question(trayicon: TrayIcon, pdf_sources_list):
         print(ansi.INFO_MSG + "Temporary image file removed.")
     except Exception as e:
         print(ansi.ERROR_MSG + f"Failed to remove temporary image file '{image_path}': {e}")
+    
+    return tokens_used
 
