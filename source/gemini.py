@@ -1,4 +1,6 @@
+import io
 import os
+import pathlib
 import tempfile
 import requests
 import pyautogui
@@ -56,52 +58,46 @@ def upload_pdf_part(pdf_source):
     returns the file_data dictionary for the contents list.
     """
     is_url = pdf_source.lower().startswith('http') or pdf_source.lower().startswith('https')
-    file_bytes = None
-    file_name = None
 
     try:
         if is_url:
-            print(f"Attempting to download PDF from {pdf_source}...")
+            print(ansi.INFO_MSG + f"Attempting to download PDF from {pdf_source}...")
             response = requests.get(pdf_source, stream=True, timeout=30)
             response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
-            file_bytes = response.content
-            file_name = os.path.basename(requests.utils.urlparse(pdf_source).path) or 'uploaded_pdf.pdf'
-            print(f"Download successful ({len(file_bytes)} bytes).")
+            data = response.content
+            print(ansi.SUCCESS_MSG + f"Downloaded ({len(data)} bytes).")
+
+            # Wrap bytes in a file-like object
+            file_obj = io.BytesIO(data)
+            display_name = os.path.basename(pdf_source) or "downloaded.pdf"
+
+            print(ansi.INFO_MSG + "Uploading PDF (from URL) to Gemini...")
+            uploaded = client.files.upload(
+                file=file_obj,
+                config=dict(
+                    mime_type='application/pdf',
+                    display_name=display_name,
+                )
+            )
 
         else:
-            print(f"Attempting to read local PDF file {pdf_source}...")
-            if not os.path.exists(pdf_source):
-                print(ansi.ERROR_MSG + f"Local PDF file not found at {pdf_source}")
+            local_path = pathlib.Path(pdf_source)
+            print(ansi.INFO_MSG + f"Reading local PDF from {local_path!r}")
+            if not local_path.exists():
+                print(ansi.ERROR_MSG + f"Local file not found: {local_path!r}")
                 return None
-            with open(pdf_source, 'rb') as f:
-                file_bytes = f.read()
-            file_name = os.path.basename(pdf_source)
-            print(f"File read successfully ({len(file_bytes)} bytes).")
 
-        if not file_bytes:
-            print(ansi.ERROR_MSG + f"No content obtained from {pdf_source}.")
-            return None
+            print(ansi.INFO_MSG + f"Uploading {local_path.name!r} to Gemini...")
+            uploaded = client.files.upload(
+                file=local_path,
+                # config is optional for local files, Gemini will infer from `.pdf`
+            )
 
-        # Upload the file using the genai client
-        print(f"Uploading file '{file_name}' to Gemini...")
-        # display_name helps the model distinguish between files, optional but recommended
-        uploaded_file = client.upload_file(data=file_bytes, display_name=file_name)
-        print(f"File uploaded successfully. File URI: {uploaded_file.uri}")
-
-        # The API expects a dictionary referencing the uploaded file URI
-        return {
-            'file_data': {
-                'mime_type': 'application/pdf', # Specify PDF mime type
-                'file_uri': uploaded_file.uri
-            }
-        }
+        print(ansi.SUCCESS_MSG + f"File uploaded successfully. URI: {uploaded.uri}")
+        return uploaded
 
     except requests.exceptions.RequestException as e:
         print(ansi.ERROR_MSG + f"Error downloading PDF from {pdf_source}: {e}")
-        return None
-    except FileNotFoundError:
-        # This case is handled by the os.path.exists check above, but keeping for completeness
-        print(ansi.ERROR_MSG + f"Local PDF file not found at {pdf_source}")
         return None
     except Exception as e:
         # Catch any other unexpected exceptions during reading/uploading
@@ -199,6 +195,10 @@ def call_gemini_multimodal(contents, selected_model):
     except Exception as e:
         if (e.__class__.__name__ == "LocalProtocolError"):
             print(ansi.FAIL + "INVALID API KEY: " + ansi.ENDC + e.__str__())
+
+        elif ("429 RESOURCE_EXHAUSTED" in e.__str__()):
+            print(ansi.ERROR_MSG + "API rate limit exceeded. Please try again later.")
+            print(ansi.INFO_MSG + "If this persists, consider trying a different model or checking your API usage.")
 
         else:
             print(ansi.ERROR_MSG + e.__str__())

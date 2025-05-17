@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 from ansi import ansi
 
-TOKEN_DB_FILE = "token_usage.json"
+TOKEN_DB_FILE = "../token_usage.json"
 
 def load_token_data():
     """Loads token usage data from a JSON file."""

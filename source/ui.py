@@ -38,6 +38,14 @@ class LogRedirector(object):
     # Required for Python 3
     def fileno(self):
         return self._stdout.fileno()
+    
+    # Required for Python 3's print() function to work correctly with redirected stdout
+    @property
+    def encoding(self):
+        try:
+            return self._original_stream.encoding
+        except Exception:
+            return 'utf-8' # Default encoding
 
 
 class UI:
@@ -77,9 +85,11 @@ class UI:
             height=600,
             resizable=True,
             hidden=False,
-            js_api=self.main_app_callbacks
         )
 
+
+        for callback in self.main_app_callbacks:
+            self.window.expose(self.main_app_callbacks[callback]) # Expose each callback to the JS context
 
     def start_ui(self):
         """Starts the pywebview GUI and the log monitoring thread."""

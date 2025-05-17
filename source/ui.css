@@ -107,6 +107,7 @@ h1, h2 {
     border-radius: 3px;
     cursor: pointer;
     font-size: 0.8em;
+    flex-shrink: 0;
 }
 #pdf-list li .remove-btn:hover:not(:disabled) {
      background-color: #ec971f;
@@ -117,19 +118,25 @@ h1, h2 {
 }
 
 
-#log-output {
+/* Style for the log output PRE element */
+#log-output.ansi-log {
     width: calc(100% - 20px); /* Adjust width considering padding */
+    height: 300px; /* Give it a fixed height or use rows on textarea */
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.9em;
-    background-color: #333;
-    color: #f4f4f4;
+    background-color: #333; /* Dark background for logs */
+    color: #f4f4f4; /* Default text color */
     resize: vertical; /* Allow vertical resizing */
     overflow-y: auto; /* Add scrollbar if content exceeds height */
     display: block; /* Take full width */
+    white-space: pre-wrap; /* Wrap long lines */
+    word-wrap: break-word;
+    font-weight: 600; /* Make text slightly bolder for better readability */
 }
+
 
 #state-status {
     text-align: center;
@@ -152,13 +159,46 @@ h1, h2 {
 .listening-state #pdf-section input,
 .listening-state #pdf-section button,
 .listening-state #model-section select,
-.listening-state #controls button:not(#start-stop-button) {
+.listening-state .remove-btn { /* Add remove button here */
     cursor: not-allowed;
     opacity: 0.6;
 }
+/* Re-enable remove button specifically if needed in certain states */
+
 
 /* Keep start/stop button clickable */
 .listening-state .controls #start-stop-button {
     cursor: pointer;
     opacity: 1;
+}
+
+/* --- ANSI Color Classes --- */
+/* Standard Colors (30-37) */
+.ansi-log .ansi-black { color: #333; }
+.ansi-log .ansi-red { color: #e74c3c; }    /* Vivid Red */
+.ansi-log .ansi-green { color: #2ecc71; }  /* Vivid Green */
+.ansi-log .ansi-yellow { color: #f1c40f; } /* Vivid Yellow */
+.ansi-log .ansi-blue { color: #3498db; }   /* Vivid Blue */
+.ansi-log .ansi-magenta { color: #9b59b6; }/* Vivid Magenta */
+.ansi-log .ansi-cyan { color: #1abc9c; }   /* Vivid Cyan */
+.ansi-log .ansi-white { color: #f4f4f4; }  /* Should match default text color */
+
+/* Bright/High-Intensity Colors (90-97) */
+.ansi-log .ansi-grey { color: #bdc3c7; }      /* Bright Black / Grey */
+.ansi-log .ansi-bright-red { color: #e74c3c; }
+.ansi-log .ansi-bright-green { color: #2ecc71; }
+.ansi-log .ansi-bright-yellow { color: #f1c40f; }
+.ansi-log .ansi-bright-blue { color: #3498db; }
+.ansi-log .ansi-bright-magenta { color: #9b59b6; }
+.ansi-log .ansi-bright-cyan { color: #1abc9c; }
+.ansi-log .ansi-bright-white { color: #ffffff; }
+
+/* Text Attributes (1, 4, etc.) - Let's handle Bold (1) */
+.ansi-log .ansi-bold { font-weight: bold; }
+.ansi-log .ansi-underline { text-decoration: underline; } /* Based on your ansi.py (4) */
+
+/* Ensure spans inside pre wrap correctly */
+.ansi-log span {
+    white-space: pre-wrap; /* Allow spans to wrap */
+    word-wrap: break-word;
 }

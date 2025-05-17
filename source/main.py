@@ -14,7 +14,7 @@ quitting = False
 is_listening = False # Track if hotkeys are active
 is_hidden = False # Track if UI is hidden
 pdf_sources_list = [] # List of PDF paths/URLs
-selected_model = "gemini-2.5-flash-preview-04-17" # Default model
+selected_model = "models/gemini-2.5-flash-preview-04-17-thinking" # Default model
 token_data = {} # Dictionary to store token usage loaded from token_db
 
 # --- Objects ---

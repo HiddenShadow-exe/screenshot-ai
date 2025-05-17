@@ -5,12 +5,108 @@ const pdfInput = document.getElementById('pdf-input');
 const modelSelect = document.getElementById('model-select');
 const totalTokensSpan = document.getElementById('total-tokens');
 const todayTokensSpan = document.getElementById('today-tokens');
-const logOutputTextarea = document.getElementById('log-output');
+const logOutputPre = document.getElementById('log-output');
 const startStopButton = document.getElementById('start-stop-button');
 const stateStatusDiv = document.getElementById('state-status');
 
 let currentPdfSources = [];
 let uiState = 'configuring'; // 'configuring' or 'listening'
+
+// --- ANSI to HTML/CSS Mapping ---
+// Mapping of ANSI SGR parameters to CSS classes
+const ansiColorMap = {
+    // Standard Colors (30-37)
+    30: 'ansi-black',
+    31: 'ansi-red',
+    32: 'ansi-green',
+    33: 'ansi-yellow',
+    34: 'ansi-blue',
+    35: 'ansi-magenta',
+    36: 'ansi-cyan',
+    37: 'ansi-white',
+    // Bright Colors (90-97)
+    90: 'ansi-grey', // Bright Black
+    91: 'ansi-bright-red',
+    92: 'ansi-bright-green',
+    93: 'ansi-bright-yellow',
+    94: 'ansi-bright-blue',
+    95: 'ansi-bright-magenta',
+    96: 'ansi-bright-cyan',
+    97: 'ansi-bright-white',
+    // Attributes
+    1: 'ansi-bold',      // Bold
+    4: 'ansi-underline', // Underline
+    // Add others if needed (e.g., background colors 40-47, 100-107)
+};
+
+// --- Function to parse ANSI and convert to HTML ---
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function ansiToHtml(text) {
+  // Matches \x1b[ ... m
+  const ansiRegex = /\x1b\[((?:\d|;)*?)m/g;
+  let html = '';
+  let lastIndex = 0;
+
+  // Stack of open color‐span class names
+  const openSpans = [];
+  // Whether we currently have a <strong> open
+  let isBold = false;
+
+  let match;
+  while ((match = ansiRegex.exec(text)) !== null) {
+    // 1) Append everything before this code (escaped)
+    html += escapeHtml(text.slice(lastIndex, match.index));
+    lastIndex = ansiRegex.lastIndex;
+
+    // 2) Parse the SGR parameters
+    const params = match[1].split(';').map(Number);
+    for (const p of params) {
+      if (p === 0) {
+        // Reset everything
+        if (isBold) {
+          html += '</strong>';
+          isBold = false;
+        }
+        while (openSpans.length) {
+          html += '</span>';
+          openSpans.pop();
+        }
+
+      } else if (p === 1) {
+        // Bold on
+        if (!isBold) {
+          html += '<strong>';
+          isBold = true;
+        }
+
+      } else if (ansiColorMap[p] && ansiColorMap[p] !== 'bold') {
+        // Color
+        const cls = ansiColorMap[p];
+        html += `<span class="${cls}">`;
+        openSpans.push(cls);
+      }
+      // (You can add underline, background, etc., here.)
+    }
+  }
+
+  // 3) Append remaining text after the last ANSI code
+  html += escapeHtml(text.slice(lastIndex));
+
+  // 4) Close any still‐open tags
+  if (isBold) html += '</strong>';
+  while (openSpans.length) {
+    html += '</span>';
+    openSpans.pop();
+  }
+
+  return html;
+}
 
 // Function called by Python to set the initial state
 function setInitialState(state) {
@@ -72,7 +168,7 @@ function addPdfSource() {
         populatePdfList();
         pdfInput.value = '';
         // Inform Python about the updated list
-        window.pywebview.api.setPdfSources(currentPdfSources);
+        window.pywebview.api.set_pdf_sources(currentPdfSources);
     } else if (source) {
         console.log("JS: PDF source already in the list.");
     }
@@ -83,7 +179,7 @@ function removePdfSource(index) {
         currentPdfSources.splice(index, 1);
         populatePdfList();
         // Inform Python about the updated list
-        window.pywebview.api.setPdfSources(currentPdfSources);
+        window.pywebview.api.set_pdf_sources(currentPdfSources);
     }
 }
 
@@ -114,7 +210,7 @@ modelSelect.addEventListener('change', function() {
     const selectedModel = modelSelect.value;
     console.log("JS: Selected model:", selectedModel);
     // Inform Python about the selected model
-    window.pywebview.api.setSelectedModel(selectedModel);
+    window.pywebview.api.set_selected_model(selectedModel);
 });
 
 
@@ -136,9 +232,26 @@ function getTodayDateString() {
 // --- Log Display ---
 // Function called by Python to append a log line
 function appendLog(logLine) {
-    logOutputTextarea.value += logLine;
-    // Auto-scroll to the bottom
-    logOutputTextarea.scrollTop = logOutputTextarea.scrollHeight;
+    if (logLine.includes("sending thread") && logLine.includes("monitoring thread")) {
+        logLine.split('.').forEach(line => {
+            if (line.trim()) {
+                appendLog(line.trim() + '.\n');
+            }
+        });
+        return;
+    }
+    // Skip empty lines
+    if (!logLine.trim()) return;
+
+    // Convert ANSI to HTML
+    const coloredHtml = ansiToHtml(logLine);
+
+    // Append the HTML to the PRE element's innerHTML
+    // Using insertAdjacentHTML is generally more performant and safer than += innerHTML
+    logOutputPre.insertAdjacentHTML('beforeend', coloredHtml);
+
+    // Auto-scroll to the bottom - works for PRE element too
+    logOutputPre.scrollTop = logOutputPre.scrollHeight;
 }
 
 
@@ -147,25 +260,26 @@ function toggleListening() {
     startStopButton.disabled = true; // Prevent double clicks
 
     if (uiState === 'configuring') {
-        console.log("JS: Calling Python startListening()");
-        window.pywebview.api.startListening().then(() => {
-             // Python's startListening will call setUIState on success
-             startStopButton.disabled = false;
+        console.log("JS: Calling Python start_listening()");
+        appendLog("Starting listening...\n");
+        window.pywebview.api.start_listening().then(() => {
+            // Python's startListening will call setUIState on success
+            startStopButton.disabled = false;
         }).catch(error => {
-             console.error("JS: Error calling startListening:", error);
-             appendLog(`Error starting listening: ${error}\n`);
-             startStopButton.disabled = false; // Re-enable button on error
+            console.error("JS: Error calling start_listening:", error);
+            appendLog(`Error starting listening: ${error}\n`);
+            startStopButton.disabled = false; // Re-enable button on error
         });
     } else if (uiState === 'listening') {
-        console.log("JS: Calling Python stopListening()");
-         window.pywebview.api.stopListening().then(() => {
-             // Python's stopListening will call setUIState on success
-             startStopButton.disabled = false;
-         }).catch(error => {
-             console.error("JS: Error calling stopListening:", error);
-             appendLog(`Error stopping listening: ${error}\n`);
-             startStopButton.disabled = false; // Re-enable button on error
-         });
+        console.log("JS: Calling Python stop_listening()");
+        window.pywebview.api.stop_listening().then(() => {
+            // Python's stopListening will call setUIState on success
+            startStopButton.disabled = false;
+        }).catch(error => {
+            console.error("JS: Error calling stop_listening:", error);
+            appendLog(`Error stopping listening: ${error}\n`);
+            startStopButton.disabled = false; // Re-enable button on error
+        });
     }
 }
 
