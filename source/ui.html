@@ -23,9 +23,11 @@
 
         <div class="section" id="model-section">
             <h2>AI Model</h2>
-            <select id="model-select">
-                <!-- Model options will be populated by JS -->
-            </select>
+            <div class="select-wrapper">
+                <select id="model-select">
+                    <!-- Model options will be populated by JS -->
+                </select>
+            </div>
         </div>
 
         <div class="section" id="tokens-section">
@@ -39,8 +41,11 @@
             <pre id="log-output" class="ansi-log"></pre>
         </div>
 
-        <div class="controls">
+        <div class="section controls">
+            <h2>Controls</h2>
             <button id="start-stop-button" onclick="toggleListening()">Start Listening</button>
+            <button id="clear-logs-button" onclick="clearLogs()">Clear Logs</button>
+            <button id="hide-button" onclick="toggleVisibility()">Hide window</button>
         </div>
     </div>
 

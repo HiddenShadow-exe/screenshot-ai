@@ -65,7 +65,7 @@ class TrayIcon:
 
         # Create a right-click menu
         self.icon.menu = pystray.Menu(
-            item('Show GUI', lambda icon, item: self.show_gui_callback()),
+            item('Toggle GUI visibility', lambda icon, item: self.show_gui_callback()),
             item('Quit', lambda icon, item: self.quit_callback()),
         )
 
@@ -87,7 +87,7 @@ class TrayIcon:
 
         # Create a right-click menu
         self.icon.menu = pystray.Menu(
-            item('Show GUI', lambda icon, item: self.show_gui_callback()),
+            item('Toggle GUI visibility', lambda icon, item: self.show_gui_callback()),
             item('Quit', lambda icon, item: self.quit_callback()),
         )
 

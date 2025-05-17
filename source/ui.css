@@ -202,3 +202,70 @@ h1, h2 {
     white-space: pre-wrap; /* Allow spans to wrap */
     word-wrap: break-word;
 }
+
+/* Select box styling */
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;            /* or whatever fits your layout */
+  max-width: 100%;
+}
+
+.select-wrapper select {
+  /* Reset native appearance */
+  -webkit-appearance: none;
+  -moz-appearance:    none;
+  appearance:         none;
+
+  /* Sizing & spacing */
+  width: 100%;
+  padding: 8px 36px 8px 12px; /* room on right for our arrow */
+  font-size: 1em;
+  line-height: 1.6;
+  
+  /* Borders & background */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+
+  /* Smooth transitions */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  /* Cursor */
+  cursor: pointer;
+}
+
+.select-wrapper select:focus {
+  outline: none;
+  border-color: #888;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* Custom dropdown arrow (SVG data URI) */
+.select-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 0.8em;
+  height: 0.5em;
+  pointer-events: none;
+  transform: translateY(-50%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%23666' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+/* Option styling (where supported) */
+.select-wrapper select option {
+  padding: 8px;
+  background-color: #fff;
+  color: #333;
+}
+
+/* Disabled state */
+.select-wrapper select:disabled {
+  background-color: #f4f4f4;
+  color: #888;
+  cursor: not-allowed;
+}

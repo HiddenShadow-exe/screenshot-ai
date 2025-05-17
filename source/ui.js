@@ -283,6 +283,18 @@ function toggleListening() {
     }
 }
 
+function clearLogs() {
+    logOutputPre.innerHTML = ''; // Clear the log display
+}
+
+function toggleVisibility() {
+    window.pywebview.api.toggle_ui_visibility().catch(error => {
+        console.error("JS: Error calling hide_ui:", error);
+        appendLog(`Error hiding UI: ${error}\n`);
+    });
+}
+
+
 // --- Initial State Sync (Called by Python after window is shown) ---
 // The function `setInitialState` is called from Python's `_on_window_shown` callback.
 // This ensures the DOM is ready before we try to populate elements.

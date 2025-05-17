@@ -275,6 +275,7 @@ if __name__ == "__main__":
         'set_selected_model': set_selected_model, # UI -> Main (sets model)
         'get_token_usage': get_token_usage, # UI -> Main (gets token data)
         'quit_app': set_quitting_flag,       # UI -> Main (signals quit)
+        'toggle_ui_visibility': toggle_ui_visibility, # UI -> Main (toggles visibility)
         # UI can also call update methods on ui_app directly from main.py
     }
 
