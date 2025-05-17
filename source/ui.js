@@ -132,7 +132,7 @@ function setUIState(state) {
     document.body.classList.add(state + '-state');
 
     stateStatusDiv.textContent = state === 'configuring' ? 'Configuring' : 'Listening (Hotkeys Active)';
-    stateStatusDiv.className = 'status ' + state; // Update classes for styling
+    stateStatusDiv.className = 'status-badge ' + state; // Update classes for styling
 
     startStopButton.textContent = state === 'configuring' ? 'Start Listening' : 'Stop Listening';
     startStopButton.classList.remove('configuring', 'listening');
@@ -261,7 +261,6 @@ function toggleListening() {
 
     if (uiState === 'configuring') {
         console.log("JS: Calling Python start_listening()");
-        appendLog("Starting listening...\n");
         window.pywebview.api.start_listening().then(() => {
             // Python's startListening will call setUIState on success
             startStopButton.disabled = false;
