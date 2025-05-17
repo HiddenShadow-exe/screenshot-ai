@@ -1,6 +1,8 @@
 from datetime import date
 import sys
 import time
+from tkinter import filedialog
+import tkinter as tk
 import keyboard
 
 from trayicon import TrayIcon
@@ -246,6 +248,12 @@ def get_token_usage():
         token_data = token_db.load_token_data()
     return token_data
 
+def get_file_path():
+    root = tk.Tk()
+    root.withdraw()  # Hide the root window
+    file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
+    return file_path
+
 
 if __name__ == "__main__":
     # Ensure Gemini client is initialized by importing gemini module
@@ -276,6 +284,7 @@ if __name__ == "__main__":
         'get_token_usage': get_token_usage, # UI -> Main (gets token data)
         'quit_app': set_quitting_flag,       # UI -> Main (signals quit)
         'toggle_ui_visibility': toggle_ui_visibility, # UI -> Main (toggles visibility)
+        'get_file_path': get_file_path,      # UI -> Main (opens file dialog)
         # UI can also call update methods on ui_app directly from main.py
     }
 

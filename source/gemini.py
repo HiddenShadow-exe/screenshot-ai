@@ -215,11 +215,11 @@ def process_question(trayicon: TrayIcon, pdf_sources_list, selected_model):
     # Prepare content and call API
     print(ansi.INFO_MSG + "Preparing content for Gemini...")
 
+    trayicon.set_loading()
     contents = create_gemini_contents(image_path, pdf_sources_list)
 
     tokens_used = 0
     if contents:
-        trayicon.set_loading()
         response_text, tokens_used = call_gemini_multimodal(contents, selected_model)
 
         print(ansi.INFO_MSG + ansi.BOLD + ansi.UNDERLINE + "Response from Gemini:" + ansi.ENDC, end=" ")

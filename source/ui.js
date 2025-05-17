@@ -131,12 +131,20 @@ function setUIState(state) {
     document.body.classList.remove('configuring-state', 'listening-state');
     document.body.classList.add(state + '-state');
 
-    stateStatusDiv.textContent = state === 'configuring' ? 'Configuring' : 'Listening (Hotkeys Active)';
+    stateStatusDiv.innerHTML = state === 'configuring'
+    ? '<i class="fas fa-gear mr-1"></i> Configuring'
+    : '<i class="fas fa-keyboard mr-1"></i> Listening (Hotkeys Active)';
     stateStatusDiv.className = 'status-badge ' + state; // Update classes for styling
 
-    startStopButton.textContent = state === 'configuring' ? 'Start Listening' : 'Stop Listening';
+    startStopButton.innerHTML = state === 'configuring'
+        ? '<i class="fas fa-play mr-1"></i> Start Listening'
+        : '<i class="fas fa-stop mr-1"></i> Stop Listening';
+
     startStopButton.classList.remove('configuring', 'listening');
     startStopButton.classList.add(state);
+    startStopButton.classList.remove('bg-red-500', 'bg-green-600', 'hover:bg-red-600', 'hover:bg-green-700');
+    startStopButton.classList.add(state === 'listening' ? 'bg-red-500' : 'bg-green-600');
+    startStopButton.classList.add(state === 'listening' ? 'hover:bg-red-600' : 'hover:bg-green-700');
 
     // Disable/enable input fields and buttons based on state
     const inputs = document.querySelectorAll('#pdf-section input, #pdf-section button, #model-section select');
@@ -212,6 +220,26 @@ modelSelect.addEventListener('change', function() {
     // Inform Python about the selected model
     window.pywebview.api.set_selected_model(selectedModel);
 });
+
+function browsePdfFile() {
+    // pywebview provides access to file paths via API
+    if (window.pywebview) {
+        window.pywebview.api.get_file_path().then(function (filePath) {
+            if (filePath) {
+                pdfInput.value = filePath;
+                addPdfSource();
+            }
+        });
+    } else {
+        alert("pywebview not available.");
+    }
+}
+
+
+function copyLogs() {
+    const logText = logOutputPre.innerText;
+    navigator.clipboard.writeText(logText);
+}
 
 
 // --- Token Usage Display ---
