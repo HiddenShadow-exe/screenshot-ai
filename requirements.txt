@@ -1,0 +1,8 @@
+requests
+pyautogui
+google-genai
+pystray
+Pillow
+keyboard
+flask
+pywin32
