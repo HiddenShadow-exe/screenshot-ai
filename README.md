@@ -18,10 +18,7 @@ Screenshot AI takes a screenshot of your screen when a keybind is pressed, promp
 * See logs to know exactly what happens in the background
 * Click start listening to listen for keybinds
 * Optionally, you can hide the config window
-* Finally, navigate to your question, and press
-  ```console
-  Ctrl+Shift+Q
-  ```
+* Finally, navigate to your question, and press `Ctrl+Shift+Q`
 
 > [!NOTE]
 > Some models are only available in the paid tier thus returning an error when called using free-tier API token
