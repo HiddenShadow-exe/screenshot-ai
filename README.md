@@ -1,3 +1,50 @@
+# Prompt Enginiering info
+* Task number: own idea
+* Name: Strumpf Dávid
+* Docs: below
+* AIs used while programming:
+    - Gemini 2.5 Flash Preview
+    - OpenAI ChatGPT
+* Experiences:
+    - It is not pleasent to work with python for UI backend and JS for frontend...
+    - Regarding AI: it was really annoying that Gemini REALLY wants to display the whole code even after a small change was requested. For example, I asked it to add a new few-line short function that I wanted to use in one place. It returned the whole 400+ line code where I had to find where it put the new function. Even after explicitly telling it not to return the whole file, only show modifications, sometimes it still wouldn't behave. Not to mention that it always bloated the code with comments, which I really disliked. I guess Google made it this way to increase output token count thus being able to bill more to paid-tier users... I'm not sure.
+
+## Prompts
+### Initial prompt
+From v1, I've already had some code that I also pasted for the AI to start with.
+For example, the tray icon manager logic was almost complete.
+```console
+I wanna make an python script for Gemini API, here is my code to start with. I wanna be able to attach an image whose content is a question. I also wanna be able to attach (multiple) pdf files (both locally or from a URL) which content helps answer the question in the picture. Also help me write an appropriate prompt based on the above info, make the AI answer as shortly as possible, if it's a multiple choice question, anawer with only ABCD, if not, answer in as few words as possible, but always below 128 characters no matter what.
+```
+It had some problems implementing the latest Gemini API in python but after inserting the official docs from google, it started to look better. After small manual repair, the base was ready to go!
+
+### Implementing GUI
+After the core was working, I wanted a GUI to configure the parameters.
+```console
+I have these 3 files:
+trayicon.py for managing the tray icon
+gemini.py for handling AI communication
+main.py the entry point
+
+I want a 4th file that handles UI related tasks. I want a GUI to display a few things for the user:
+* be able to upload the pdf files there (file upload from device/link)
+* be able to choose from different AI models
+* show the already used tokens all together and today (this needs some kind of "database", can be a simple json file)
+* what currently gets printed to the console, should go in the GUI (so a way to display logs)
+* after setting all these things up start listening for the keybinds. (during listening you cannot modify)
+* be able to stop listening and tweak settings
+* hide the GUI window, to make it appear, create a callback that can be called from the trayIcon button
+
+Use a GUI framework of your choice, keep it simple but make it look modern. If you find it suitable, I'd love to try pywebview since I'm already pretty familiar with HTML, CSS
+Do not modify my existing files, only tell me how to integrate it with the new system.
+```
+This yielded a pretty promising result. After debugging for a while to find out that the AI knows a previos version of pywebview, I got things working.
+This created an HTML and a CSS (and a JS) file additionally. I din't want to use CSS for this project, which got me to the next prompt.
+
+### Replace CSS with Tailwind
+I simply asked the AI to convert the HTML+CSS file into a single HTML file using Tailwind classes. It was able to do so flawlessly, first try. It is a more systematic task, the instruction is very clear, so I guess that's why it succedded first try.
+
+
 # Screenshot AI v2
 Screenshot AI takes a screenshot of your screen when a keybind is pressed, prompts an LLM to answer the question visible in the screenshot, then shows the answer in a tray icon. All this without anyone realizing you are using AI to answer the quesion.
 
