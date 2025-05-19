@@ -1,4 +1,8 @@
+# Screenshot AI v2
 Screenshot AI takes a screenshot of your screen when a keybind is pressed, prompts an LLM to answer the question visible in the screenshot, then shows the answer in a tray icon. All this without anyone realizing you are using AI to answer the quesion.
+
+## Config window
+![image](https://github.com/user-attachments/assets/30c8f79d-4d64-43e3-a29e-b8af016210fa)
 
 # Screenshot AI v1
 The original version of Screenshot AI didn't use an API to communicate with an LLM, it used a clever workaround to to interact with the GUI of the AI in a web browser. This was needed, since at the time v1 was made, there was no free unlimited-use API that could handle images, while the browser version of Gemini was capapble of doing so.
@@ -49,6 +53,6 @@ With all the experiences from Screenshot AI v1, I had a handful of changes and e
     - the answer can we displayed whenever the LLM responds, eliminating the fix wait
     - no need to promt the user to provide (maybe incorrect) mouse positions making the program more user-friendly
 2. since the AI did not score perticularly high on the test quiz, some kind of system would be nice to pass info about the topic to the AI, making it capable of scanning it, and answering more precizely
+3. tracking the token usage to avoid unexpected error responses
 
-# Screenshot AI v2
-docs coming soon...
+With all theese in mind, Screenshot AI v2 was born...
